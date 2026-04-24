@@ -5,7 +5,7 @@ export default function SummaryCards({ data }) {
       <Card title="Time" value={`${data.estimated_time}s`} />
       <Card title="Execution" value={data.execution} />
       <Card title="Jobs" value={data.total_jobs} />
-      <Card title="Issues" value={data.issues.length} />
+      <Card title="Issues" value={data.issues} />
 
     </div>
   );
