@@ -25,31 +25,38 @@ export default function UploadPage() {
   };
 
   // Analyze
-  const handleAnalyze = async () => {
-    if (!yaml.trim()) return alert("Add YAML first");
+const handleAnalyze = async () => {
+  if (!yaml.trim()) return alert("Add YAML first");
 
-    try {
-      const res = await axios.post("http://localhost:8080/api/parse", {
-        yamlContent: yaml,
-        withCredentials: true,
-      });
+  try {
+    const res = await axios.post("http://localhost:8080/api/parse", {
+      yamlContent: yaml,
+    });
 
-      console.log(res?.data);
-      navigate("/dashboard", { state: res.data });
-    } catch {
-      // fallback demo mode
-      navigate("/dashboard", {
-        state: {
-          estimatedTime: 0,
-          execution: "sequential",
-          parsed: { jobs: {} },
-          suggestions: [],
-          ai_suggestions: [],
-        },
-      });
-    }
-  };
+    const { requestId, ...initialData } = res.data;
 
+    // Navigate immediately with base data
+    navigate("/dashboard", {
+      state: {
+        ...initialData,
+        requestId,
+        aiStatus: "processing",
+      },
+    });
+  } catch (error) {
+    console.log("Error in api: ", error);
+
+    navigate("/dashboard", {
+      state: {
+        estimatedTime: 0,
+        execution: "sequential",
+        parsed: { jobs: {} },
+        suggestions: [],
+        ai_suggestions: [],
+      },
+    });
+  }
+};
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 text-white">
       {/* TITLE */}
