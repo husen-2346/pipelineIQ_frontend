@@ -5,10 +5,9 @@ import axios from "axios";
 export default function UploadPage() {
   const [yaml, setYaml] = useState("");
   const [activeTab, setActiveTab] = useState("paste");
-  const [fileName, setFileName] = useState(""); // ✅ NEW STATE
+  const [fileName, setFileName] = useState(""); 
   const navigate = useNavigate();
 
-  // 📁 Handle File Upload
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -18,37 +17,36 @@ export default function UploadPage() {
       return;
     }
 
-    setFileName(file.name); // ✅ store file name
+    setFileName(file.name); 
 
     const reader = new FileReader();
     reader.onload = (e) => setYaml(e.target.result);
     reader.readAsText(file);
   };
 
-  // 🚀 Analyze
+  // Analyze
   const handleAnalyze = async () => {
     if (!yaml.trim()) return alert("Add YAML first");
 
     try {
-      const res = await axios.post("http://localhost:8080/analyze", {
-        yaml,
-      });
-
+      const res = await axios.post("http://localhost:8080/api/parse", {
+        yamlContent: yaml,
+        withCredentials: true 
+      }); 
+      
+      console.log(res?.data)
       navigate("/dashboard", { state: res.data });
 
     } catch {
       // fallback demo mode
       navigate("/dashboard", {
         state: {
-          estimated_time: 35,
+          estimated_time: res?.data?.estimatedTime,
           execution: "sequential",
-          total_jobs: 2,
-          jobs: [
-            { name: "build", steps: 2 },
-            { name: "deploy", steps: 1 },
-          ],
+          total_jobs: res?.data?.parsed.length,
+          jobs: res?.data?.parsed,
           issues: ["Dependency chain detected"],
-          suggestions: ["Parallelize jobs"],
+          suggestions: res?.data?.suggestions,
           ai_suggestions: ["Reduce dependencies"],
         },
       });

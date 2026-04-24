@@ -9,21 +9,37 @@ export default function Dashboard() {
 
   if (!state) return <div className="pt-32 text-center">No Data</div>;
 
+  const jobsArray = Object.entries(state.parsed.jobs).map(([name, job]) => ({
+    name,
+    steps: job.steps.length,
+  }));
+
+  const transformedData = {
+    estimated_time: state.estimatedTime,
+    execution: state.execution,
+    total_jobs: jobsArray.length,
+    issues: state.suggestions.length,
+    jobs: jobsArray,
+    suggestions: state.suggestions.map((s) => s.message),
+    ai_suggestions: [],
+  };
+
   return (
-    <div className="pt-28 px-6">
-
-      <SummaryCards data={state} />
+    <div className="min-h-screen pt-28 px-6">
+      <SummaryCards data={transformedData} />
 
       <div className="grid md:grid-cols-2 gap-6 mt-6">
-        <JobsTable jobs={state.jobs} />
-        <Issues issues={state.issues} />
+        <JobsTable jobs={transformedData.jobs} />
+        <Issues issues={transformedData.issues} />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mt-6">
-        <Suggestions title="Suggestions" data={state.suggestions} />
-        <Suggestions title="AI Suggestions" data={state.ai_suggestions} />
+        <Suggestions title="Suggestions" data={transformedData.suggestions} />
+        <Suggestions
+          title="AI Suggestions"
+          data={transformedData.ai_suggestions}
+        />
       </div>
-
     </div>
   );
 }
